@@ -1,9 +1,9 @@
 const express = require('express')
-const sharp = require('sharp')
-const multer = require('multer')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
-const {sendWelcomeEmail, sendCancelEmail} = require('../emails/account') // use destrcuturing
+const sharp = require('sharp')
+const multer = require('multer')
+const {sendWelcomeEmail, sendCancelEmail} = require('../emails/account') 
 const router = new express.Router()
 
 router.post('/users', async (req, res) => {
@@ -18,13 +18,6 @@ router.post('/users', async (req, res) => {
         res.status(400).send(e)
     }
 })
-
-        /* user.save().then(() => {
-            res.status(201).send(user)
-        }).catch((e) => {
-            res.status(400).send(e)
-        }) */
-
         router.post('/users/login', async (req, res) => {
             try {
                 const user = await User.findByCredentials(req.body.email, req.body.password) // this will call whatever is defined on userSchema.statics.findByCredentials in user model
@@ -37,9 +30,8 @@ router.post('/users', async (req, res) => {
 
         router.post('/users/logout', auth , async (req, res) => {
             try {
-                // delete the token we used to login from the tokens array
-                req.user.tokens = req.user.tokens.filter((token) => { // fill out the tokens array with the tokens we are not looking for
-                    return token.token !== req.token // filter out the authentication token we were looking for and remove it
+                req.user.tokens = req.user.tokens.filter((token) => { 
+                    return token.token !== req.token
                 })
 
                 await req.user.save() // save the changes (changed array)
@@ -64,20 +56,16 @@ router.post('/users', async (req, res) => {
         })
 
 router.patch('/users/me', auth, async (req,res) => {
-        // req.body is an object with all of those updates
         const updates = Object.keys(req.body) // convert our object into an array of its properties
-        const allowUpdates = ['name', 'email', 'password', 'age'] // list out the individual properties we would like someone to be able to change
-        const isValidOperation = updates.every((update) => allowUpdates.includes(update)) // equal to: return allowUpdates.includes(update))
+        const allowUpdates = ['name', 'email', 'password', 'age']
+        const isValidOperation = updates.every((update) => allowUpdates.includes(update))
         
         if(!isValidOperation){
             return res.status(400).send({error: 'Invalid updates'})
         }
 
     try {
-        // make sure the middleware fires up consistenly 
-        // we do it in the old way because we use save() method, the same we use in user.js/models userSchema.pre('save'.....)
-
-        updates.forEach((update) => req.user[update] = req.body[update]) //shorthand arrow function
+        updates.forEach((update) => req.user[update] = req.body[update]) 
         await req.user.save()
         res.send(req.user)
     } catch(e) {

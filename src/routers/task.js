@@ -1,13 +1,13 @@
 const express = require('express')
-const router = new express.Router()
-const auth = require('../middleware/auth')
 const Task = require('../models/task')
+const auth = require('../middleware/auth')
+const router = new express.Router()
+
 
 router.post('/tasks', auth, async (req, res) => {
-    // const task = new Task(req.body)
     const task = new Task ({
-        ...req.body, // copies all the properties from body over to this object
-        owner: req.user._id // the person that just authenticated
+        ...req.body, 
+        owner: req.user._id 
     })
 
     try {
@@ -17,9 +17,6 @@ router.post('/tasks', auth, async (req, res) => {
         res.status(400).send(e)
     }
 })
-// GET /tasks?completed=true
-// GET /tasks?limit=6&skip=4
-// GET /tasks?sortBy=createdAt-asc
 router.get('/tasks', auth, async (req,res) => {  
     const match = {}
     const sort = {}
