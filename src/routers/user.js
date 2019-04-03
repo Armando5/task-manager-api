@@ -18,42 +18,41 @@ router.post('/users', async (req, res) => {
         res.status(400).send(e)
     }
 })
-        router.post('/users/login', async (req, res) => {
-            try {
-                const user = await User.findByCredentials(req.body.email, req.body.password) // this will call whatever is defined on userSchema.statics.findByCredentials in user model
-                const token = await user.generateAuthToken()
-                res.send({user, token})
-            } catch (e) {
-                res.status(400).send()
-            }
-        })
+router.post('/users/login', async (req, res) => {
+    try {
+        const user = await User.findByCredentials(req.body.email, req.body.password) // this will call whatever is defined on userSchema.statics.findByCredentials in user model
+        const token = await user.generateAuthToken()
+        res.send({user, token})
+    } catch (e) {
+        res.status(400).send()
+    }
+})
 
-        router.post('/users/logout', auth , async (req, res) => {
-            try {
-                req.user.tokens = req.user.tokens.filter((token) => { 
-                    return token.token !== req.token
-                })
-
-                await req.user.save() // save the changes (changed array)
-                res.send()
-            } catch(e) {
-                res.status(500).send()
-            }
+router.post('/users/logout', auth , async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => { 
+            return token.token !== req.token
         })
+        await req.user.save() // save the changes (changed array)
+        res.send()
+    } catch(e) {
+        res.status(500).send()
+    }
+})
         
-        router.post('/users/logoutAll', auth, async (req,res) => {
-            try{
-                req.user.tokens = []
-                await req.user.save()
-                res.send()
-            } catch(e) {
-                res.status(500).send()
-            }
-        })
+router.post('/users/logoutAll', auth, async (req,res) => {
+    try{
+        req.user.tokens = []
+        await req.user.save()
+        res.send()
+    } catch(e) {
+        res.status(500).send()
+    }
+})
         
-        router.get('/users/me', auth, async (req, res) => {
-            res.send(req.user)
-        })
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
+})
 
 router.patch('/users/me', auth, async (req,res) => {
         const updates = Object.keys(req.body) // convert our object into an array of its properties
